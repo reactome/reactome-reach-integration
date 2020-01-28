@@ -8,7 +8,7 @@
 
 	<groupId>org.reactome.[optionalsubdomain]</groupId>
 	<artifactId>[lower-case-name-using-kebab-case]</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>[name-of-project]</name>
