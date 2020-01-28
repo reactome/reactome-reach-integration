@@ -109,7 +109,7 @@
 
 	<build>
 		<!-- optional list the final name of the built artifact -->
-		<finalName>download-directory</finalName>
+		<finalName>[artifact-name]</finalName>
 
 		<plugins>
 			<!-- sets the Java compiler version targeted by Maven -->
