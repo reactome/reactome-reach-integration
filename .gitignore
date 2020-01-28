@@ -1,0 +1,19 @@
+target/
+logs/
+
+# Ignore the configuration file, if any, used for the project (derived from sample_config.properties)
+config.properties
+
+# Ignore IntelliJ files
+.idea/
+*.iml
+
+# Ignore Eclipse files
+.classpath
+.settings
+.project
+
+# Ignore package files #
+*.jar
+*.war
+*.ear
