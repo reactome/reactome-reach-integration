@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This is a template for a Reactome Maven based project.
+	Please customize this template by filling in values in square brackets.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.reactome.[optionalsubdomain]</groupId>
+	<artifactId>[lower-case-name-using-kebab-case]</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>[name-of-project]</name>
+	<description>[description of project]</description>
+	<url>https://reactome.org</url>
+	<licenses>
+		<license>
+			<name>[license name]</name>
+			<url>[license url]</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>[Your Name]</name>
+			<email>[your@workemail.com]</email>
+			<organization>Reactome</organization>
+			<organizationUrl>https://reactome.org</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/reactome/[name-of-repository].git</connection>
+		<developerConnection>scm:git:ssh://github.com/reactome/[name-of-repository].git</developerConnection>
+		<url>https://github.com/reactome/[name-of-repository]</url>
+		<tag>develop</tag>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!--
+		integration tests run by default when running the command "mvn verify"; can be overridden using the option
+		"-DskipITs=true"
+		-->
+		<skipITs>false</skipITs>
+
+		<!--
+		make a property for any dependency versions used more than once
+		-->
+		<junit.version>5.5.2</junit.version>
+		<log4j.version>2.13.0</log4j.version>
+	</properties>
+
+	<dependencies>
+		<!--
+		Main dependencies
+			- List dependencies needed by the main code base in this section
+		-->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<!--
+		Test dependencies
+			- List dependencies needed ONLY by tests in this section
+		-->
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<!-- required for Reactome library SNAPSHOTS prior to release on Maven Central -->
+		<repository>
+			<id>oss.sonatype.org-snapshot</id>
+			<url>http://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<build>
+		<!-- optional list the final name of the built artifact -->
+		<finalName>download-directory</finalName>
+
+		<plugins>
+			<!-- sets the Java compiler version targeted by Maven -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+			<!--
+			allows 'mvn clean compile assembly:single' command to create a jar with dependencies
+
+			execution section also allows 'mvn clean package' command to create two jars - with/without dependencies
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.reactome.[optional sub domain].[class with main method]</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.22.2</version>
+				<executions>
+					<execution>
+						<id>integration-tests</id>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<!--
+							Default value is defined in the <properties> section and will be applied to integration
+							tests when running the command "mvn verify", but can be overwritten to either skip
+							or run integration tests with the command "mvn verify -DskipITs=[true|false]"
+							-->
+							<skipTests>${skipITs}</skipTests>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+			<!-- executes unit tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
+				<configuration>
+					<systemProperties>
+						<property>
+							<name>java.util.logging.config.file</name>
+							<value>src/test/resources/logging.properties</value>
+						</property>
+					</systemProperties>
+				</configuration>
+			</plugin>
+
+			<!--
+			allows 'mvn release' command to create a new release of the project
+			https://maven.apache.org/maven-release/maven-release-plugin/
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<useReleaseProfile>false</useReleaseProfile>
+					<releaseProfiles>release</releaseProfiles>
+					<goals>deploy</goals>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+				</configuration>
+			</plugin>
+
+			<!--
+			checks the POM file has the order specified by the POM Code Convention
+			http://maven.apache.org/developers/conventions/code.html#POM_Code_Convention
+			-->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>tidy-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
