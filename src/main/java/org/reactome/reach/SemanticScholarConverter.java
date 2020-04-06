@@ -1,19 +1,14 @@
 package org.reactome.reach;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -27,15 +22,15 @@ public class SemanticScholarConverter {
 	// See src/main/resources/log4j2.xml for log4j specific configuration
 	private static final Logger logger = LogManager.getLogger("mainLog");
 	
-	private static String getText(Path path) throws FileNotFoundException, IOException {
+	private String getText(Path path) throws FileNotFoundException, IOException {
 	    StringBuilder text = new StringBuilder();
-	    JSONObject paper = new JSONObject(readFile(path));
+	    JSONObject paper = new JSONObject(FriesUtils.readFile(path));
 	    text.append(extractText(paper.getJSONArray("abstract")));
 	    text.append(extractText(paper.getJSONArray("body_text")));
         return text.toString();
 	}
 	
-	private static String extractText(JSONArray jsonArray) {
+	private String extractText(JSONArray jsonArray) {
 	    StringBuilder text = new StringBuilder();
 	    for (Object obj : jsonArray) {
 	         JSONObject bodyText = (JSONObject) obj;
@@ -44,17 +39,7 @@ public class SemanticScholarConverter {
 	    return text.toString();
 	}
 	
-	private static String readFile(Path path) throws IOException {
-	    StringBuilder stringBuilder = new StringBuilder();
-	    try (BufferedReader reader = Files.newBufferedReader(path)) {
-            String line = null;
-            while ((line = reader.readLine()) != null)
-                stringBuilder.append(line);
-        }
-	    return stringBuilder.toString();
-	}
-	
-	private static Map<String, Metadata> createMetadataObjects(Path path) throws IOException, CsvException {
+	private Map<String, Metadata> createMetadataObjects(Path path) throws IOException, CsvException {
         Metadata metadataObj = null;
 	    Map<String, Metadata> metadataMap = new HashMap<String, Metadata>();
         String shas = null;
@@ -78,7 +63,7 @@ public class SemanticScholarConverter {
         return metadataMap;
 	}
 	
-	private static void writeFile(String text, Metadata metadataObj, String dir) throws IOException {
+	private void writeFile(String text, Metadata metadataObj, String dir) throws IOException {
 	    StringBuilder filename = new StringBuilder(dir);
 	    if (metadataObj.getPmcid() != null && metadataObj.getPmcid().length() > 0)
 	        filename.append(metadataObj.getPmcid());
@@ -91,8 +76,7 @@ public class SemanticScholarConverter {
 	    filename.append(".txt");
 	    Path path = Paths.get(filename.toString());
 
-	    OpenOption[] options = {StandardOpenOption.CREATE, StandardOpenOption.APPEND};
-	    try(BufferedWriter writer = Files.newBufferedWriter(path, options)) {
+	    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
 	        writer.write(text, 0, text.length());
 	    }
 	}
@@ -107,7 +91,8 @@ public class SemanticScholarConverter {
 		String filename = null;
 		String sha = null;
 		Metadata metadataObj = null;
-		Map<String, Metadata> metadataMap = createMetadataObjects(Paths.get(dir + metadataFile));
+		SemanticScholarConverter converter = new SemanticScholarConverter();
+		Map<String, Metadata> metadataMap = converter.createMetadataObjects(Paths.get(dir + metadataFile));
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
 		    for (Path path : stream) {
 		        if (Files.isRegularFile(path) && path.toString().endsWith(".json")) {
@@ -116,9 +101,9 @@ public class SemanticScholarConverter {
 		            metadataObj = metadataMap.get(sha);
 
 		            if (metadataObj == null) continue;
-		            text = getText(path);
+		            text = converter.getText(path);
 
-		            writeFile(text, metadataObj, outputDir);
+		            converter.writeFile(text, metadataObj, outputDir);
 		        }
 		    }
 		} 

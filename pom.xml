@@ -91,21 +91,34 @@
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20190722</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
 		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>5.1</version>
 		</dependency>
-				
+
+		<dependency>
+			<groupId>org.gk.reach.model</groupId>
+			<artifactId>fries</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.11.0.rc1</version>
+		</dependency>
+
 	</dependencies>
 
 	<repositories>
@@ -124,7 +137,7 @@
 
 	<build>
 		<!-- optional list the final name of the built artifact -->
-		<finalName>[artifact-name]</finalName>
+		<finalName>SemanticScholarConverter</finalName>
 		<pluginManagement>
 
 		<plugins>
