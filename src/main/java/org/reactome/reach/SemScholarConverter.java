@@ -18,7 +18,11 @@ import org.json.*;
 import com.opencsv.*;
 import com.opencsv.exceptions.CsvException;
 
-public class SemanticScholarConverter {
+/**
+ * Converts JSON files in Semantic Scholar data sets to a plain text format
+ * digestible by REACH.
+ */
+public class SemScholarConverter {
 	// See src/main/resources/log4j2.xml for log4j specific configuration
 	private static final Logger logger = LogManager.getLogger("mainLog");
 	
@@ -39,71 +43,87 @@ public class SemanticScholarConverter {
 	    return text.toString();
 	}
 	
-	private Map<String, Metadata> createMetadataObjects(Path path) throws IOException, CsvException {
-        Metadata metadataObj = null;
-	    Map<String, Metadata> metadataMap = new HashMap<String, Metadata>();
+	private Map<String, Metadata> createMetadataObjects(Path metadataFile) throws IOException, CsvException {
         String shas = null;
         String doi = null;
         String pmcid = null;
         String pmid = null;
 	    String[] line;
-	    CSVReader reader = new CSVReader(new FileReader(path.toString()));
-	    while ((line = reader.readNext()) != null) {
-	        shas = line[0];
-	        doi = line[3];
-	        pmcid = line[4];
-	        pmid = line[5];
+        Metadata metadataObj = null;
+	    Map<String, Metadata> metadataMap = new HashMap<String, Metadata>();
 
-	        for (String sha : shas.split("; ")) {
-	            metadataObj = new Metadata(sha, doi, pmcid, pmid);
-	            metadataMap.put(sha, metadataObj);
+	    try (CSVReader reader = new CSVReader(new FileReader(metadataFile.toString()))) {
+	        while ((line = reader.readNext()) != null) {
+	            shas = line[0];
+	            doi = line[3];
+	            pmcid = line[4];
+	            pmid = line[5];
+
+	            for (String sha : shas.split("; ")) {
+	                metadataObj = new Metadata(sha, doi, pmcid, pmid);
+	                metadataMap.put(sha, metadataObj);
+	            }
 	        }
 	    }
-	    reader.close();
         return metadataMap;
 	}
 	
-	private void writeFile(String text, Metadata metadataObj, String dir) throws IOException {
-	    StringBuilder filename = new StringBuilder(dir);
+	private void createTextFile(String contents, Path outputDir, Metadata metadataObj) throws IOException {
+	    StringBuilder filename = new StringBuilder();
+
+	    // PMC
 	    if (metadataObj.getPmcid() != null && metadataObj.getPmcid().length() > 0)
 	        filename.append(metadataObj.getPmcid());
+
+	    // PMID
 	    else if (metadataObj.getPmid() != null && metadataObj.getPmid().length() > 0)
 	        filename.append("PMID").append(metadataObj.getPmid());
+	    
+	    // DOI
 	    else if (metadataObj.getDoi() != null && metadataObj.getDoi().length() > 0)
 	        filename.append("DOI").append(metadataObj.getDoi().replace("/", "-"));
+
+	    // Checksum
 	    else
 	        filename.append(metadataObj.getSha());
+
 	    filename.append(".txt");
-	    Path path = Paths.get(filename.toString());
+
+	    Path path = outputDir.resolve(Paths.get(filename.toString()));
 
 	    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-	        writer.write(text, 0, text.length());
+	        writer.write(contents, 0, contents.length());
 	    }
 	}
 
 	public static void main(String[] args) throws IOException, CsvException {
-		logger.info("testing");
-		String dir = "/Users/beckmanl/dev/covid-19/noncomm_use_subset/conversion/";
-		String outputDir = dir + "converted/";
-		String metadataFile = "metadata.csv";
+	    // Directories
+		Path semanticScholarDir = FriesUtils.getSemanticScholarDir();
+		Path metadataFile = semanticScholarDir.resolve(Paths.get("metadata.csv"));
+		Path outputDir = FriesUtils.getReachDir().resolve(Paths.get("papers"));
 
+		// Variables
 		String text = null;
 		String filename = null;
 		String sha = null;
 		Metadata metadataObj = null;
-		SemanticScholarConverter converter = new SemanticScholarConverter();
-		Map<String, Metadata> metadataMap = converter.createMetadataObjects(Paths.get(dir + metadataFile));
-		try(DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
+		SemScholarConverter converter = new SemScholarConverter();
+		Map<String, Metadata> metadataMap = converter.createMetadataObjects(metadataFile);
+
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(semanticScholarDir)) {
+		    // For all files in the input directory.
 		    for (Path path : stream) {
 		        if (Files.isRegularFile(path) && path.toString().endsWith(".json")) {
+		            // Extract checksum from filename.
 		            filename = path.getFileName().toString();
 		            sha = filename.substring(0, filename.lastIndexOf("."));
 		            metadataObj = metadataMap.get(sha);
 
 		            if (metadataObj == null) continue;
+
 		            text = converter.getText(path);
 
-		            converter.writeFile(text, metadataObj, outputDir);
+		            converter.createTextFile(text, outputDir, metadataObj);
 		        }
 		    }
 		} 
