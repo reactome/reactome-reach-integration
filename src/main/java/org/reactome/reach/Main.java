@@ -54,29 +54,29 @@ public class Main {
 	    Main main = new Main();
 	    main.makeDirectories(FriesUtils.getRootDir());
 
-		logger.info("SemScholarFetcher ...");
+		logger.info("Fetching dataset from Semantic Scholar ...");
 		SemScholarFetcher fetcher = new SemScholarFetcher();
-//		fetcher.fetch();
+		// fetcher.fetch();
         
-		logger.info("SemScholarConverter ...");
+		logger.info("Converting JSON files to text files ...");
 		SemScholarConverter converter = new SemScholarConverter();
-//		converter.convert();
+		// converter.convert();
 		
-		logger.info("REACH ...");
+		logger.info("Runing REACH on text files ...");
 		// TODO From REACH code directory, run:
 		//   sbt 'run-main org.clulab.processors.server.ProcessorServer'
 		//   sbt 'run-main org.clulab.reach.RunReachCLI' 
 		
-		logger.info("FriesMerger ...");
+		logger.info("Merging FRIES files ...");
 		FriesMerger merger = new FriesMerger();
-//		merger.merge();
+		// merger.merge();
 		
-		logger.info("FriesFilter ...");
+		logger.info("Filtering FRIES files ...");
 		FriesFilter filter = new FriesFilter();
-//		filter.filter();
+		// filter.filter();
 
-		logger.info("ReferenceFetch ...");
+		logger.info("Adding references to FRIES files ...");
 		FriesReferenceAdder referenceAdder = new FriesReferenceAdder();
-//		referenceAdder.addReferences();
+		// referenceAdder.addReferences();
 	}
 }

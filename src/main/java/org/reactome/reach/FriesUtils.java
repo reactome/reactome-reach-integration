@@ -69,6 +69,9 @@ public class FriesUtils {
 	    List<Path> files = new ArrayList<Path>();
 	    try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
 	        for (Path path : stream) {
+	            if (!Files.isRegularFile(path))
+	                continue;
+
 	            if (filter == null || path.toString().endsWith(filter))
                     files.add(path);
 	        }
