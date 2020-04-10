@@ -117,7 +117,7 @@ public class FriesMerger {
 		    // Write the file to the output directory.
 		    filename = map.getKey().concat(FriesConstants.FRIES_EXT).concat(FriesConstants.JSON_EXT);
 		    path = Paths.get(outputDir.toString(), filename);
-		    FriesUtils.writeFile(jsonPretty, path);
+		    FriesUtils.writeFile(path, jsonPretty);
 		}
     }
 }

@@ -22,7 +22,7 @@ public class FriesUtils {
 
     public FriesUtils() {
     }
-    
+
     static String readFile(Path file) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -30,11 +30,11 @@ public class FriesUtils {
             while ((line = reader.readLine()) != null) {
                 stringBuilder.append(line);
             }
-        } 
+        }
 
         return stringBuilder.toString();
     }
-    
+
     static List<String> readFileToList(Path file) throws IOException {
         List<String> list = new ArrayList<String>();
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -42,12 +42,12 @@ public class FriesUtils {
             while ((line = reader.readLine()) != null) {
                 list.add(line);
             }
-        } 
+        }
 
         return list;
     }
-    
-	static void writeFile(String contents, Path file) throws IOException {
+
+	static void writeFile(Path file, String contents) throws IOException {
 	    try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 	        writer.write(contents.toString(), 0, contents.length());
 	    }
@@ -60,11 +60,11 @@ public class FriesUtils {
             writer.write(str, 0, str.length());
         }
     }
-    
+
 	static List<Path> getFilesInDir(Path dir) throws IOException {
 	    return getFilesInDir(dir, null);
 	}
-	
+
 	static List<Path> getFilesInDir(Path dir, String filter) throws IOException {
 	    List<Path> files = new ArrayList<Path>();
 	    try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
@@ -94,9 +94,36 @@ public class FriesUtils {
 
         return paperId;
     }
-	
+
+    static String getIdFromPath(Path file) throws Exception {
+        String identifier = null;
+        String filename = file.getFileName().toString();
+
+        // PMC
+        if (filename.startsWith(FriesConstants.PMC))
+            identifier = filename;
+
+        // PMID
+        else if (filename.startsWith(FriesConstants.PMID))
+            identifier = filename.replaceFirst(FriesConstants.PMID, "");
+
+        // DOI
+        else if (filename.startsWith(FriesConstants.DOI)) {
+            identifier = filename.replaceFirst(FriesConstants.DOI, "");
+            identifier = filename.replaceAll("-", "/");
+        }
+        else
+            throw new Exception("Unknown prefix for file: " + filename);
+
+        identifier = identifier.replaceAll(".json", "");
+        identifier = identifier.replaceAll(".xml", "");
+
+        return identifier;
+    }
+
+
     static void showCurentFile(Path file) {
-	    String str = file.toString();
+        String str = file.toString();
 //	    logger.info(str);
 	}
 
@@ -104,19 +131,27 @@ public class FriesUtils {
 	    String str = file.toString() + " -> OK ( " + current + " / " + total + " ) ";
 //	    logger.info(str);
 	}
-	
+
 	static Path getSemanticScholarDir() throws IOException {
-	    return getRootDir().resolve("semantic-scholar");
+	    return getCurrentDir().resolve("semantic-scholar");
 	}
 
 	static Path getReachDir() throws IOException {
-	    return getRootDir().resolve("reach");
+	    return getCurrentDir().resolve("reach");
 	}
 
 	static Path getFriesDir() throws IOException {
-	    return getRootDir().resolve("fries");
+	    return getCurrentDir().resolve("fries");
 	}
-	
+
+	static Path getCurrentDir() throws IOException {
+	    return getRootDir().resolve("current");
+	}
+
+	static Path getCompletedDir() throws IOException {
+	    return getRootDir().resolve("fries-completed");
+	}
+
 	static Properties getProperties() throws IOException {
 	    Properties properties = new Properties();
 	    Path propertiesFile = Paths.get(FriesConstants.PROPERTY_FILE);
@@ -124,13 +159,13 @@ public class FriesUtils {
 	    try (BufferedReader reader = Files.newBufferedReader(propertiesFile)) {
 	        properties.load(reader);
         }
-	    
+
 	    return properties;
 	}
 
 	static Path getRootDir() throws IOException {
 	    Properties properties = getProperties();
-	    
+
 	    StringBuilder path = new StringBuilder();
         path.append(System.getProperty("user.home"));
         path.append(System.getProperty("file.separator"));

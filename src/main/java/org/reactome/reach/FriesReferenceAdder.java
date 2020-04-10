@@ -28,18 +28,22 @@ public class FriesReferenceAdder {
      * @return Reference
      * @throws IOException
      */
-    public Reference fetchReference(String paperId) throws IOException {
+    public Reference fetchReference(Path paper) throws IOException {
+        String filename = paper.getFileName().toString();
         StringBuilder stringBuilder = new StringBuilder(FriesConstants.REFERENCE_URL);
-        if (paperId.toUpperCase().startsWith(FriesConstants.PMC))
+
+        if (filename.toUpperCase().startsWith(FriesConstants.PMC))
             stringBuilder.append(FriesConstants.PMC_QUERY);
-        else if (paperId.toUpperCase().startsWith(FriesConstants.PMID))
+
+        else if (filename.toUpperCase().startsWith(FriesConstants.PMID))
             stringBuilder.append(FriesConstants.PUBMED_QUERY);
+
+        // TODO Add support for DOI prefix.
         else return null;
 
         stringBuilder.append(FriesConstants.ID_QUERY);
         // Remove "PMC" or "PMID" from paperId.
-        paperId = FriesUtils.cleanPaperId(paperId);
-        stringBuilder.append(paperId);
+        stringBuilder.append(FriesUtils.cleanPaperId(filename));
         stringBuilder.append(FriesConstants.RETMODE);
         stringBuilder.append(FriesConstants.TOOL_EMAIL);
 
@@ -48,7 +52,7 @@ public class FriesReferenceAdder {
 
         PaperMetadata paperMetadataObj = ReachUtils.readJsonText(metadata, PaperMetadata.class);
         // Generic Key, Value map from JSON returned by API.
-        Map<String, Object> paperData = paperMetadataObj.getResult().getPaperData().get(paperId);
+        Map<String, Object> paperData = paperMetadataObj.getResult().getPaperData().get(filename);
         return createReference(paperData);
     }
     
@@ -142,7 +146,7 @@ public class FriesReferenceAdder {
                 continue;
 
             FriesUtils.showCurentFile(file.getFileName());
-            reference = referenceAdder.fetchReference(file.getFileName().toString());
+            reference = referenceAdder.fetchReference(file);
             if (reference == null)
                 continue;
 
@@ -153,7 +157,7 @@ public class FriesReferenceAdder {
             contents = contents.concat(referenceStr);
             
             // Write file to output directory.
-            FriesUtils.writeFile(contents, outputDir.resolve(file.getFileName()));
+            FriesUtils.writeFile(outputDir.resolve(file.getFileName()), contents);
             
             // Update the restart log.
             FriesUtils.appendFile(restartLog, file.getFileName().toString() + "\n");

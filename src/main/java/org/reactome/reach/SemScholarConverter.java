@@ -39,7 +39,7 @@ public class SemScholarConverter {
 	private String getTextFromPaper(Path file) throws FileNotFoundException, IOException {
 	    StringBuilder text = new StringBuilder();
 	    JSONObject paper = new JSONObject(FriesUtils.readFile(file));
-	    text.append(getTextFromJSON(paper.getJSONArray("abstract"), "text"));
+//	    text.append(getTextFromJSON(paper.getJSONArray("abstract"), "text"));
 	    text.append(getTextFromJSON(paper.getJSONArray("body_text"), "text"));
         return text.toString();
 	}
@@ -59,85 +59,17 @@ public class SemScholarConverter {
 	    return text.toString();
 	}
 
-	/**
-	 * Return a map of 'SHA' checksums to their respective paper's metadata.
-	 *
-	 * metadata file must be a CSV file. For values separated by other characters, see
-     * <a href="http://opencsv.sourceforge.net/#configuration">Opencsv Configuration</a>.
-	 *
-	 * @param metadataFile
-	 * @return List
-	 * @throws IOException
-	 * @throws CsvException
-	 */
-	private List<PaperMetadata> createPaperMetadata(Path metadataFile) throws IOException, CsvException {
-	    @SuppressWarnings("unchecked")
-	    // Get list of "noncomm_use_subset" papers from rows in the metadata file.
-        List<PaperMetadata> papers = new CsvToBeanBuilder(new FileReader(metadataFile.toString()))
-                                             .withType(PaperMetadata.class)
-                                             .withOrderedResults(false)
-                                             .withVerifier(new PaperMetadataFilter())
-                                             .build()
-                                             .parse();
 
-        return papers;
-	}
+	private void jsonToTextFile(Path jsonFile, Path outputDir, PaperMetadata metadata) throws IOException {
+	    String filename = jsonFile.getFileName().toString();
+	    filename = filename.replaceAll(".xml", "");
+	    filename = filename.replaceAll(".json", ".txt");
 
-	private Map<Path, String> jsonToTextFile(Path jsonFile, PaperMetadata metadata, Path outputDir) throws IOException {
-	    StringBuilder filename = new StringBuilder();
-
-	    // PMC
-	    if (metadata.getPmcid() != null && metadata.getPmcid().length() > 0)
-	        filename.append(metadata.getPmcid());
-
-	    // PMID
-	    else if (metadata.getPmid() != null && metadata.getPmid().length() > 0)
-	        filename.append("PMID").append(metadata.getPmid());
-
-	    // DOI
-	    else if (metadata.getDoi() != null && metadata.getDoi().length() > 0)
-	        filename.append("DOI").append(metadata.getDoi().replace("/", "-"));
-
-	    // Checksum
-	    else
-	        filename.append(metadata.getSha());
-
-	    filename.append(".txt");
-	    Path path = outputDir.resolve(Paths.get(filename.toString()));
+	    Path path = outputDir.resolve(Paths.get(filename));
 
 	    String contents = getTextFromPaper(jsonFile);
 
-	    Map<Path, String> file = new HashMap<Path, String>();
-	    file.put(path, contents);
-
-	    return file;
-	}
-
-	private Map<Path, String> createFilesFromChecksums(Path metadataFile, Path semanticScholarDir, Path outputDir)
-	        throws IOException, CsvException {
-		String filename = null;
-		String sha = null;
-		SemScholarConverter converter = new SemScholarConverter();
-
-	    List<PaperMetadata> papers = converter.createPaperMetadata(metadataFile);
-	    List<Path> jsonFiles = FriesUtils.getFilesInDir(semanticScholarDir, FriesConstants.JSON_EXT);
-
-	    Map<Path, String> fileMap = new HashMap<Path, String>();
-
-	    for (Path jsonFile : jsonFiles) {
-	        // Extract checksum from filename.
-	        filename = jsonFile.getFileName().toString();
-	        sha = filename.substring(0, filename.lastIndexOf("."));
-
-	        for (PaperMetadata metadata : papers) {
-	            if (metadata.getSha().equals(sha)) {
-	                fileMap.putAll(converter.jsonToTextFile(jsonFile, metadata, outputDir));
-	                break;
-	            }
-	        }
-	    }
-
-	    return fileMap;
+	    FriesUtils.writeFile(path, contents);
 	}
 
 	private Map<Path,String> createFilesFromJson(Path inputDir, Path outputDir) {
@@ -146,29 +78,114 @@ public class SemScholarConverter {
 	    return fileMap;
 	}
 
-	public static void main(String[] args) throws IOException, CsvException {
-	    // Directories
+	private PaperMetadata matchChecksum(Path shaFile, List<PaperMetadata> paperMetadata)
+	        throws IOException, CsvException {
+	    String filename = null;
+	    String sha = null;
+
+	    Map<Path,PaperMetadata> fileMap = new HashMap<Path,PaperMetadata>();
+
+	    // Extract checksum from filename.
+	    filename = shaFile.getFileName().toString();
+	    sha = filename.substring(0, filename.lastIndexOf("."));
+
+	    // Search for the extracted checksum value in the list of paper metadata.
+	    for (PaperMetadata metadata : paperMetadata) {
+	        if (metadata.getSha().equals(sha)) {
+	            return metadata;
+	        }
+	    }
+
+	    return null;
+	}
+
+	private Path findFile(Path dir, PaperMetadata metadata) throws Exception {
+	    String filename = null;
+
+	    for (Path file : FriesUtils.getFilesInDir(dir)) {
+	        filename = FriesUtils.getIdFromPath(file);
+	        if (metadata.getPmcid().equals(filename) ||
+	            metadata.getPmcid().equals(filename) ||
+	            metadata.getPmcid().equals(filename)) {
+	            return file;
+	        }
+	    }
+	    
+	    return null;
+	}
+
+	public static void main(String[] args) throws Exception {
+	    // semantic-scholar/
 		Path semanticScholarDir = FriesUtils.getSemanticScholarDir();
+		
+		// noncomm_use_subset/
 		Path nonCommDir = semanticScholarDir.resolve("noncomm_use_subset");
-		Path metadataFile = nonCommDir.resolve(Paths.get("metadata.csv"));
+		
+		// reach/papers/
 		Path outputDir = FriesUtils.getReachDir().resolve(Paths.get("papers"));
+
+		// pdf_json_identified/
+		Path pdfJsonDir = nonCommDir.resolve(Paths.get("pdf_json"));
+	
+		// pdf_json_identified/
+		Path pdfJsonIdentifiedDir = nonCommDir.resolve(Paths.get("pdf_json_converted"));
+
+		// pmc_json/
+		Path pmcJsonDir = nonCommDir.resolve(Paths.get("pmc_json"));
+		
+		// Metadata CSV file.
+		Path metadataFile = semanticScholarDir.resolve(Paths.get("metadata.csv"));
+		
+		// completed-fries/
+		Path completedFriesDir = FriesUtils.getCompletedDir();
+
+		SemScholarFileChecker checker = new SemScholarFileChecker();
+        List<PaperMetadata> paperMetadata = 	checker.getFilteredMetadata(metadataFile, completedFriesDir);
+
 		SemScholarConverter converter = new SemScholarConverter();
-		Map<Path, String> fileMap = new HashMap<Path, String>();
+        Path jsonFile = null;
+   
+        // For all the "paper" in the filtered metadata.
+        for (PaperMetadata metadata : paperMetadata) {
+            if (metadata.getHas_pmc_xml_parse()) {
+                // Find the JSON file corresponding to the "paper".
+                jsonFile = converter.findFile(pmcJsonDir, metadata);
 
-		Path checksumDir = nonCommDir.resolve(Paths.get("pdf_json"));
-		fileMap.putAll(converter.createFilesFromChecksums(metadataFile, checksumDir, outputDir));
+                // Output the plain text file to the output directory.
+                converter.jsonToTextFile(jsonFile, outputDir, metadata);
+            }
+            
+            else if (metadata.getHas_pdf_parse()) {
+                // Find the SHA file corresponding to the "paper".
+                jsonFile = converter.findFile(pdfJsonDir, metadata);
+                
+                // Copy the SHA file to the identified directory and rename with PMC/PMID/DOI id.
+                StringBuilder path = new StringBuilder();
 
-		Path jsonDir = nonCommDir.resolve(Paths.get("pmc_json"));
-		fileMap.putAll(converter.createFilesFromJson(jsonDir, outputDir));
+                //PMC
+                if (metadata.getPmcid() != null) 
+                    path.append("PMC" + metadata.getPmcid());
+                
+                // PMID
+                if (metadata.getPmid() != null)
+                    path.append("PMID" + metadata.getPmid());
+                
+                // DOI
+                if (metadata.getDoi() != null)
+                    path.append("DOI" + metadata.getDoi().replaceAll("/", "-"));
+                
+                path.append(".json");
+                
+                Path target = pdfJsonIdentifiedDir.resolve(path.toString());
+                Files.copy(jsonFile, target);
 
-		Path path = null;
-		String contents = null;
-		for (Map.Entry<Path, String> file : fileMap.entrySet()) {
-		    path = file.getKey();
-		    contents = file.getValue();
-		    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-		        writer.write(contents, 0, contents.length());
-		    }
-		}
+                // Output the plain text file to the output directory.
+                converter.jsonToTextFile(target, outputDir, metadata);
+            }
+            
+            else {
+                // Log failed file. 
+            }
+        }
 	}
 }

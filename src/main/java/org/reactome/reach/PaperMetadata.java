@@ -32,10 +32,10 @@ public class PaperMetadata {
     public String journal;
 
     @CsvBindByName
-    public String has_pdf_parse;
+    public boolean has_pdf_parse;
 
     @CsvBindByName
-    public String has_pmc_xml_parse;
+    public boolean has_pmc_xml_parse;
 
     @CsvBindByName
     public String full_text_file;
@@ -63,7 +63,10 @@ public class PaperMetadata {
         return full_text_file;
     }
 
-    public String getHasPmc_xml_parse() {
+    public boolean getHas_pmc_xml_parse() {
+        return has_pmc_xml_parse;
+    }
+    public boolean getHas_pdf_parse() {
         return has_pmc_xml_parse;
     }
 
