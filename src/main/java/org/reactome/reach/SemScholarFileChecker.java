@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
@@ -27,9 +29,8 @@ public class SemScholarFileChecker {
 	 * @throws CsvException
 	 */
 	private List<PaperMetadata> createPaperMetadata(Path metadataFile) throws IOException, CsvException {
-	    @SuppressWarnings("unchecked")
 	    // Get list of "noncomm_use_subset" papers from rows in the metadata file.
-        List<PaperMetadata> papers = new CsvToBeanBuilder(new FileReader(metadataFile.toString()))
+        List<PaperMetadata> papers = new CsvToBeanBuilder<PaperMetadata>(new FileReader(metadataFile.toString()))
                                              .withType(PaperMetadata.class)
                                              .withOrderedResults(false)
                                              .withVerifier(new PaperMetadataFilter())
@@ -39,7 +40,7 @@ public class SemScholarFileChecker {
 	}
 
 
-	private List<PaperMetadata> filterPaperMetadata(List<PaperMetadata> paperMetadata, List<String> completedIds) throws Exception {
+	private List<PaperMetadata> filterPaperMetadata(List<PaperMetadata> paperMetadata, Set<String> completedIds) throws Exception {
 	    List<PaperMetadata> filteredMetadata = new ArrayList<PaperMetadata>();
 
 	    for (PaperMetadata metadata : paperMetadata) {
@@ -53,11 +54,11 @@ public class SemScholarFileChecker {
 
 	    return filteredMetadata;
 	}
-
+	
 	public List<PaperMetadata> getFilteredMetadata(Path metadataFile, Path completedFriesDir) throws IOException, Exception {
 		List<PaperMetadata> paperMetadata = createPaperMetadata(metadataFile);
 
-		List<String> completedIds = new ArrayList<String>();
+		Set<String> completedIds = new HashSet<String>();
 
 		for (Path completedFries : FriesUtils.getFilesInDir(completedFriesDir))
 		    completedIds.add(FriesUtils.getIdFromPath(completedFries));

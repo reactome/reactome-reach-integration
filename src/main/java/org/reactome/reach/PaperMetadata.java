@@ -1,5 +1,11 @@
 package org.reactome.reach;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gk.model.Person;
+
+import com.opencsv.bean.CsvBindAndSplitByName;
 import com.opencsv.bean.CsvBindByName;
 
 public class PaperMetadata {
@@ -7,8 +13,11 @@ public class PaperMetadata {
     public PaperMetadata() {
     }
 
-    @CsvBindByName
-    public String sha;
+    @CsvBindAndSplitByName(column = "sha", 
+                           elementType = String.class,
+                           collectionType = ArrayList.class,
+                           splitOn = "; ")
+    public List<String> shas;
 
     @CsvBindByName
     public String title;
@@ -25,8 +34,11 @@ public class PaperMetadata {
     @CsvBindByName
     public String license;
 
-    @CsvBindByName
-    public String authors;
+    @CsvBindAndSplitByName(elementType = Person.class,
+                           collectionType = ArrayList.class,
+                           splitOn = "; ",
+                           converter = TextToPerson.class)
+    public List<Person> authors;
 
     @CsvBindByName
     public String journal;
@@ -42,9 +54,12 @@ public class PaperMetadata {
 
     @CsvBindByName
     public String url;
+    
+    @CsvBindByName
+    public String publish_time;
 
-    public String getSha() {
-        return sha;
+    public List<String> getShas() {
+        return shas;
     }
 
     public String getPmcid() {
@@ -66,8 +81,35 @@ public class PaperMetadata {
     public boolean getHas_pmc_xml_parse() {
         return has_pmc_xml_parse;
     }
+
     public boolean getHas_pdf_parse() {
-        return has_pmc_xml_parse;
+        return has_pdf_parse;
+    }
+    
+    public List<Person> getAuthors() {
+        return authors;
     }
 
+    public String getTitle() {
+        return title;
+    }
+    
+    public String getJournal() {
+        return journal;
+    }
+    
+    public String getPublish_time() {
+        return publish_time;
+    }
+    
+    public int getYear() {
+        String year = publish_time;
+
+        // e.g. 2020-02-02
+        if (publish_time.contains("-"))
+            year = publish_time.substring(0, publish_time.indexOf("-"));
+
+        return Integer.parseInt(year);
+    }
+    
 }

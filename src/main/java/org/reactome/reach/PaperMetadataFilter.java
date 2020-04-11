@@ -10,6 +10,9 @@ public class PaperMetadataFilter implements BeanVerifier<PaperMetadata> {
 
     @Override
     public boolean verifyBean(PaperMetadata bean) throws CsvConstraintViolationException {
+        if (bean.getFull_text_file() == null)
+            return false;
+
         if (bean.getFull_text_file().equals("noncomm_use_subset"))
             return true;
 

@@ -46,7 +46,8 @@ public class FriesMerger {
         Map<String, List<Path>> fileMap = new HashMap<String, List<Path>>();
 
         // For all JSON files in the directory.
-        for (Path path : FriesUtils.getFilesInDir(dir, FriesConstants.JSON_EXT)) {
+//        for (Path path : FriesUtils.getFilesInDir(dir, FriesConstants.JSON_EXT)) {
+        for (Path path : FriesUtils.getFilesInDir(FriesUtils.getCacheDir().resolve("output"), FriesConstants.JSON_EXT)) {
             if (!path.toString().endsWith(FriesConstants.JSON_EXT))
                 continue;
 
@@ -65,7 +66,7 @@ public class FriesMerger {
         return fileMap;
     }
 
-    private String mergeJson(String identifier, List<Path> files) throws IOException {
+    private Object mergeJson(String identifier, List<Path> files) throws IOException {
         Path eventFile = null;
         Path entityFile = null;
         Path sentenceFile = null;
@@ -92,32 +93,29 @@ public class FriesMerger {
         contents.append(", \"sentences\": " + FriesUtils.readFile(sentenceFile) + "}");
 
 		ObjectMapper mapper = new ObjectMapper();
-        Object jsonObj = mapper.readValue(contents.toString(), Object.class);
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObj);
+        return mapper.readValue(contents.toString(), Object.class);
     }
 
-    public static void main(String[] args) throws IOException {
+    public void merge() throws IOException {
         Path reachDir = FriesUtils.getReachDir();
-        Path inputDir = reachDir.resolve(Paths.get(FriesConstants.OUTPUT));
+        Path inputDir = reachDir.resolve(FriesConstants.OUTPUT);
 
         Path friesDir = FriesUtils.getFriesDir();
-        Path outputDir = friesDir.resolve(Paths.get(FriesConstants.MERGED));
-
-        FriesMerger friesMerger = new FriesMerger();
+        Path outputDir = friesDir.resolve(FriesConstants.MERGED);
 
         // Identifiers mapped to file triplet).
-        Map<String, List<Path>> fileMap = friesMerger.getTripletMap(inputDir);
+        Map<String, List<Path>> fileMap = getTripletMap(inputDir);
         
         Path path = null;
         String filename = null;
-		String jsonPretty = null;
+		Object json = null;
         // For all files in the map.
 		for (Map.Entry<String, List<Path>> map : fileMap.entrySet()) {
-		    jsonPretty = friesMerger.mergeJson(map.getKey(), map.getValue());
+		    json = mergeJson(map.getKey(), map.getValue());
 		    // Write the file to the output directory.
 		    filename = map.getKey().concat(FriesConstants.FRIES_EXT).concat(FriesConstants.JSON_EXT);
 		    path = Paths.get(outputDir.toString(), filename);
-		    FriesUtils.writeFile(path, jsonPretty);
+		    FriesUtils.writeJSONFile(path, json);
 		}
     }
 }

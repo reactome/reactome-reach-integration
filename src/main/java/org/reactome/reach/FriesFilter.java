@@ -15,12 +15,12 @@ public class FriesFilter {
     public FriesFilter() {
     }
 
-    public static void main(String[] args) throws Exception {
+    public void filter() throws Exception {
         Path friesDir = FriesUtils.getFriesDir();
         // Try to follow some standard Maven project practice.
         // Provide application.properties.
-        Path inputDir = friesDir.resolve(Paths.get(FriesConstants.MERGED));
-        Path outputDir = friesDir.resolve(Paths.get(FriesConstants.FILTERED));
+        Path inputDir = friesDir.resolve(FriesConstants.MERGED);
+        Path outputDir = friesDir.resolve(FriesConstants.FILTERED);
         
         List<Path> friesFiles = FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON_EXT);
 

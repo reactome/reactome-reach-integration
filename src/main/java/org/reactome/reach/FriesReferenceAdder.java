@@ -119,10 +119,10 @@ public class FriesReferenceAdder {
         return reference;
     }
 
-	public static void main(String[] args) throws IOException {
+	public void addReferences() throws IOException {
         Path friesDir = FriesUtils.getFriesDir();
-        Path inputDir = friesDir.resolve(Paths.get(FriesConstants.FILTERED));
-        Path outputDir = friesDir.resolve(Paths.get(FriesConstants.REFERENCES));
+        Path inputDir = friesDir.resolve(FriesConstants.FILTERED);
+        Path outputDir = friesDir.resolve(FriesConstants.REFERENCES);
 
 	    Reference reference = null;
 	    ObjectMapper mapper = new ObjectMapper();
@@ -132,7 +132,6 @@ public class FriesReferenceAdder {
 	    if (!Files.exists(restartLog))
 	        Files.createFile(restartLog);
 	    List<String> completedFiles = FriesUtils.readFileToList(restartLog);
-	    FriesReferenceAdder referenceAdder = new FriesReferenceAdder();
 
         List<Path> friesFiles = FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON_EXT);
 	    // Get total number of files to display progress.
@@ -146,7 +145,7 @@ public class FriesReferenceAdder {
                 continue;
 
             FriesUtils.showCurentFile(file.getFileName());
-            reference = referenceAdder.fetchReference(file);
+            reference = fetchReference(file);
             if (reference == null)
                 continue;
 

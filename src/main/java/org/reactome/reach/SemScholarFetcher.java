@@ -64,9 +64,7 @@ public class SemScholarFetcher {
         return path;
     }
 
-    public static void main(String[] args) throws IOException {
-        SemScholarFetcher fetcher = new SemScholarFetcher();
-
+    public void fetch() throws IOException {
         // Get the Semantic Scholar URL from properties file.
         Properties properties = FriesUtils.getProperties();
         URI semScholarURL = URI.create(properties.getProperty("semScholarURL"));
@@ -74,13 +72,17 @@ public class SemScholarFetcher {
         // Download the metadata file.
         Path outputDir = FriesUtils.getSemanticScholarDir();
         String metadataURL = properties.getProperty("semScholarMetadata");
-        Path metadata = fetcher.fetchFile(semScholarURL.resolve(metadataURL), outputDir);
+//        Path metadata = fetchFile(semScholarURL.resolve(metadataURL), outputDir);
+        Path metadataFile = FriesUtils.getCacheDir().resolve("metadata.csv");
+        Path metadata = Files.copy(metadataFile, outputDir.resolve(metadataFile.getFileName()));
 
         // Download the dataset.
         String datasetURL = properties.getProperty("semScholarDataset");
-        Path datasetArchive = fetcher.fetchFile(semScholarURL.resolve(datasetURL), outputDir);
+//        Path datasetArchive = fetchFile(semScholarURL.resolve(datasetURL), outputDir);
+        Path datasetFile = FriesUtils.getCacheDir().resolve("noncomm_use_subset.tar.gz");
+        Path datasetArchive = Files.copy(datasetFile, outputDir.resolve(datasetFile.getFileName()));
 
         // Extract the archived file.
-        fetcher.extractFiles(datasetArchive, outputDir);
+        extractFiles(datasetArchive, outputDir);
     }
 }

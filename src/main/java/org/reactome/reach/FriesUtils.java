@@ -12,10 +12,15 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FriesUtils {
 //	private static final Logger logger = LogManager.getLogger("mainLog");
@@ -60,6 +65,11 @@ public class FriesUtils {
             writer.write(str, 0, str.length());
         }
     }
+    
+    static void writeJSONFile(Path file, Object json) throws JsonGenerationException, JsonMappingException, IOException {
+        ObjectMapper mapper = new ObjectMapper(); 
+        mapper.writerWithDefaultPrettyPrinter().writeValue(file.toFile(), json);
+    }
 
 	static List<Path> getFilesInDir(Path dir) throws IOException {
 	    return getFilesInDir(dir, null);
@@ -95,7 +105,7 @@ public class FriesUtils {
         return paperId;
     }
 
-    static String getIdFromPath(Path file) throws Exception {
+    static String getIdFromPath(Path file) {
         String identifier = null;
         String filename = file.getFileName().toString();
 
@@ -112,9 +122,12 @@ public class FriesUtils {
             identifier = filename.replaceFirst(FriesConstants.DOI, "");
             identifier = filename.replaceAll("-", "/");
         }
-        else
-            throw new Exception("Unknown prefix for file: " + filename);
-
+        
+        // SHA
+        else {
+            identifier = filename;
+        }
+            
         identifier = identifier.replaceAll(".json", "");
         identifier = identifier.replaceAll(".xml", "");
 
@@ -150,6 +163,10 @@ public class FriesUtils {
 
 	static Path getCompletedDir() throws IOException {
 	    return getRootDir().resolve("fries-completed");
+	}
+
+	static Path getCacheDir() throws IOException {
+	    return getRootDir().resolve("cache");
 	}
 
 	static Properties getProperties() throws IOException {

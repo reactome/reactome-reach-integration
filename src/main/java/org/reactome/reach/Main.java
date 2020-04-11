@@ -23,28 +23,28 @@ public class Main {
         String timestamp = date.format(formatter);
 
         // root directory (time stamped)
-        Path rootDir = path.resolve(Paths.get(timestamp));
+        Path rootDir = path.resolve(timestamp);
         Files.createDirectory(rootDir);
         
         // Semantic Scholar directory
-        Path semScholarDir = rootDir.resolve(Paths.get("semantic-scholar"));
+        Path semScholarDir = rootDir.resolve("semantic-scholar");
         Files.createDirectory(semScholarDir);
         
         // REACH directory
-        Path reachDir = rootDir.resolve(Paths.get("reach"));
+        Path reachDir = rootDir.resolve("reach");
         Files.createDirectory(reachDir);
-        Files.createDirectory(reachDir.resolve(Paths.get("papers")));
-        Files.createDirectory(reachDir.resolve(Paths.get("output")));
+        Files.createDirectory(reachDir.resolve("papers"));
+        Files.createDirectory(reachDir.resolve("output"));
         
         // FRIES directory
-        Path friesDir = rootDir.resolve(Paths.get("fries"));
+        Path friesDir = rootDir.resolve("fries");
         Files.createDirectory(friesDir);
-        Files.createDirectory(friesDir.resolve(Paths.get("merged")));
-        Files.createDirectory(friesDir.resolve(Paths.get("filtered")));
-        Files.createDirectory(friesDir.resolve(Paths.get("references")));
+        Files.createDirectory(friesDir.resolve("merged"));
+        Files.createDirectory(friesDir.resolve("filtered"));
+        Files.createDirectory(friesDir.resolve("references"));
 
         // "current" directory (symbolic link)
-        Path linkedDir = path.resolve(Paths.get("current"));
+        Path linkedDir = path.resolve("current");
         if (Files.isSymbolicLink(linkedDir))
             Files.delete(linkedDir);
         Files.createSymbolicLink(linkedDir, rootDir);
@@ -56,11 +56,11 @@ public class Main {
 
 		logger.info("Fetching dataset from Semantic Scholar ...");
 		SemScholarFetcher fetcher = new SemScholarFetcher();
-		// fetcher.fetch();
+//		fetcher.fetch();
         
 		logger.info("Converting JSON files to text files ...");
 		SemScholarConverter converter = new SemScholarConverter();
-		// converter.convert();
+//		converter.convert();
 		
 		logger.info("Runing REACH on text files ...");
 		// TODO From REACH code directory, run:
@@ -69,14 +69,10 @@ public class Main {
 		
 		logger.info("Merging FRIES files ...");
 		FriesMerger merger = new FriesMerger();
-		// merger.merge();
+		merger.merge();
 		
 		logger.info("Filtering FRIES files ...");
 		FriesFilter filter = new FriesFilter();
-		// filter.filter();
-
-		logger.info("Adding references to FRIES files ...");
-		FriesReferenceAdder referenceAdder = new FriesReferenceAdder();
-		// referenceAdder.addReferences();
+		filter.filter();
 	}
 }
