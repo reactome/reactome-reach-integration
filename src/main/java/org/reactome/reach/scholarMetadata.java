@@ -8,9 +8,9 @@ import org.gk.model.Person;
 import com.opencsv.bean.CsvBindAndSplitByName;
 import com.opencsv.bean.CsvBindByName;
 
-public class PaperMetadata {
+public class scholarMetadata {
 
-    public PaperMetadata() {
+    public scholarMetadata() {
     }
 
     @CsvBindAndSplitByName(column = "sha", 

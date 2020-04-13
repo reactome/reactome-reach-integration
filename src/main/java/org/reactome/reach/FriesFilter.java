@@ -2,7 +2,6 @@ package org.reactome.reach;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
@@ -15,13 +14,7 @@ public class FriesFilter {
     public FriesFilter() {
     }
 
-    public void filter() throws Exception {
-        Path friesDir = FriesUtils.getFriesDir();
-        // Try to follow some standard Maven project practice.
-        // Provide application.properties.
-        Path inputDir = friesDir.resolve(FriesConstants.MERGED);
-        Path outputDir = friesDir.resolve(FriesConstants.FILTERED);
-        
+    public void filter(Path inputDir, Path outputDir) throws Exception {
         List<Path> friesFiles = FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON_EXT);
 
         // For all JSON FRIES files (in the input directory).
@@ -41,9 +34,8 @@ public class FriesFilter {
                 }
             }
             
-            if (needIt) {
-                Files.copy(friesFile, outputDir.resolve(friesFile.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-            }
+            if (needIt)
+                Files.copy(friesFile, outputDir.resolve(friesFile.getFileName()));
         }
     }
 }

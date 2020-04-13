@@ -18,9 +18,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
-public class SemScholarFetcher {
+public class scholarFetcher {
 
-    public SemScholarFetcher() {
+    public scholarFetcher() {
     }
 
     private void extractFiles(Path tarGz, Path outputDir) throws IOException {
@@ -47,7 +47,6 @@ public class SemScholarFetcher {
                     if (!parent.isDirectory() && !parent.mkdirs()) {
                        throw new IOException("Failed to create directory: " + parent);
                     }
-
                     try (OutputStream outputStream = Files.newOutputStream(file.toPath())) {
                         IOUtils.copy(tarInputStream, outputStream);
                     }
@@ -64,25 +63,18 @@ public class SemScholarFetcher {
         return path;
     }
 
-    public void fetch() throws IOException {
-        // Get the Semantic Scholar URL from properties file.
+    public void fetch(URI inputURL, Path outputDir) throws IOException {
         Properties properties = FriesUtils.getProperties();
-        URI semScholarURL = URI.create(properties.getProperty("semScholarURL"));
 
         // Download the metadata file.
-        Path outputDir = FriesUtils.getSemanticScholarDir();
-        String metadataURL = properties.getProperty("semScholarMetadata");
-//        Path metadata = fetchFile(semScholarURL.resolve(metadataURL), outputDir);
-        Path metadataFile = FriesUtils.getCacheDir().resolve("metadata.csv");
-        Path metadata = Files.copy(metadataFile, outputDir.resolve(metadataFile.getFileName()));
+        URI metadataURL = inputURL.resolve(properties.getProperty("semScholarMetadata"));
+        fetchFile(metadataURL, outputDir);
 
-        // Download the dataset.
-        String datasetURL = properties.getProperty("semScholarDataset");
-//        Path datasetArchive = fetchFile(semScholarURL.resolve(datasetURL), outputDir);
-        Path datasetFile = FriesUtils.getCacheDir().resolve("noncomm_use_subset.tar.gz");
-        Path datasetArchive = Files.copy(datasetFile, outputDir.resolve(datasetFile.getFileName()));
-
-        // Extract the archived file.
+        // Download the data set.
+        URI datasetURL = inputURL.resolve(properties.getProperty("semScholarDataset"));
+        Path datasetArchive = fetchFile(datasetURL, outputDir);
+        // Extract the archived data set.
         extractFiles(datasetArchive, outputDir);
     }
+
 }

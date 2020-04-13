@@ -39,15 +39,14 @@ public class FriesMerger {
         return identifier;
     }
     
-    private Map<String, List<Path>> getTripletMap(Path dir) throws IOException {
+    private Map<String, List<Path>> getTripletMap(Path inputDir) throws IOException {
         String identifier = null;
 
         // Identifiers mapped to file triplet).
         Map<String, List<Path>> fileMap = new HashMap<String, List<Path>>();
 
         // For all JSON files in the directory.
-//        for (Path path : FriesUtils.getFilesInDir(dir, FriesConstants.JSON_EXT)) {
-        for (Path path : FriesUtils.getFilesInDir(FriesUtils.getCacheDir().resolve("output"), FriesConstants.JSON_EXT)) {
+        for (Path path : FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON_EXT)) {
             if (!path.toString().endsWith(FriesConstants.JSON_EXT))
                 continue;
 
@@ -96,13 +95,7 @@ public class FriesMerger {
         return mapper.readValue(contents.toString(), Object.class);
     }
 
-    public void merge() throws IOException {
-        Path reachDir = FriesUtils.getReachDir();
-        Path inputDir = reachDir.resolve(FriesConstants.OUTPUT);
-
-        Path friesDir = FriesUtils.getFriesDir();
-        Path outputDir = friesDir.resolve(FriesConstants.MERGED);
-
+    public void merge(Path inputDir, Path outputDir) throws IOException {
         // Identifiers mapped to file triplet).
         Map<String, List<Path>> fileMap = getTripletMap(inputDir);
         

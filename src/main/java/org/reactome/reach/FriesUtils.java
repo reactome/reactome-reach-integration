@@ -128,7 +128,9 @@ public class FriesUtils {
             identifier = filename;
         }
             
+        identifier = identifier.replaceAll(".fries", "");
         identifier = identifier.replaceAll(".json", "");
+        identifier = identifier.replaceAll(".reference", "");
         identifier = identifier.replaceAll(".xml", "");
 
         return identifier;
@@ -145,30 +147,6 @@ public class FriesUtils {
 //	    logger.info(str);
 	}
 
-	static Path getSemanticScholarDir() throws IOException {
-	    return getCurrentDir().resolve("semantic-scholar");
-	}
-
-	static Path getReachDir() throws IOException {
-	    return getCurrentDir().resolve("reach");
-	}
-
-	static Path getFriesDir() throws IOException {
-	    return getCurrentDir().resolve("fries");
-	}
-
-	static Path getCurrentDir() throws IOException {
-	    return getRootDir().resolve("current");
-	}
-
-	static Path getCompletedDir() throws IOException {
-	    return getRootDir().resolve("fries-completed");
-	}
-
-	static Path getCacheDir() throws IOException {
-	    return getRootDir().resolve("cache");
-	}
-
 	static Properties getProperties() throws IOException {
 	    Properties properties = new Properties();
 	    Path propertiesFile = Paths.get(FriesConstants.PROPERTY_FILE);
@@ -180,15 +158,17 @@ public class FriesUtils {
 	    return properties;
 	}
 
-	static Path getRootDir() throws IOException {
-	    Properties properties = getProperties();
+	static Path getTestDir() throws IOException {
+	    Path testDir = Paths.get(System.getProperty("user.home"));
+	    return testDir.resolve(Paths.get("Documents/reach-to-fries-testing"));
+	}
+	
+	static Path getCurrentDir() throws IOException {
+	    return getRootDir().resolve("current");
+	}
 
-	    StringBuilder path = new StringBuilder();
-        path.append(System.getProperty("user.home"));
-        path.append(System.getProperty("file.separator"));
-	    path.append(properties.get("rootDir"));
-        path.append(System.getProperty("file.separator"));
-	    Path rootDir = Paths.get(path.toString());
-	    return rootDir;
+	static Path getRootDir() throws IOException {
+	    Path rootDir = Paths.get(System.getProperty("user.home"));
+	    return rootDir.resolve(getProperties().getProperty("rootDir"));
 	}
 }

@@ -6,6 +6,7 @@ public class FriesConstants {
     public static final String DOI = "DOI";
     public static final String MERGED = "merged";
     public static final String FILTERED = "filtered";
+    public static final String COMPLETED = "fries-completed";
     public static final String REFERENCES = "references";
     public static final String RESTART_LOG = "restart.log";
     public static final String PROPERTY_FILE = "converter.prop";
