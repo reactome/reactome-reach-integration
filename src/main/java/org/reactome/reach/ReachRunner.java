@@ -20,7 +20,7 @@ public class ReachRunner {
         Process serverProcess = runCommand(reachCodeDir, sbt, server);
 
 		// sbt 'run-main org.clulab.reach.RunReachCLI' 
-        Runnable runabble = () -> {
+        Runnable runnable = () -> {
             try {
                 Process cliProcess = runCommand(reachCodeDir, sbt, cli);
                 logProcess(cliProcess);
@@ -30,7 +30,7 @@ public class ReachRunner {
             }
         };
         
-        Thread thread = new Thread(runabble);
+        Thread thread = new Thread(runnable);
         thread.start();
 
         serverProcess.waitFor();

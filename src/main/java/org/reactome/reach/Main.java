@@ -80,12 +80,12 @@ public class Main {
         
         // https://semanticscholar.org -> semantic-scholar
 		logger.info("Fetching dataset from Semantic Scholar ...");
-		scholarFetcher fetcher = new scholarFetcher();
+		ScholarFetcher fetcher = new ScholarFetcher();
 		fetcher.fetch(semScholarURL, semScholarDir);
 		
 		// semantic-scholar -> reach/papers
 		logger.info("Converting JSON files to text files ...");
-		scholarConverter converter = new scholarConverter();
+		ScholarConverter converter = new ScholarConverter();
 		converter.convert(semScholarDir, reachPapersDir, friesCompletedDir);
 		
 		// reach/papers -> reach/output

@@ -21,7 +21,7 @@ public class FriesReferenceAdder {
     public FriesReferenceAdder() {
     }
 
-	public Reference createReference(scholarMetadata metadata) {
+	public Reference createReference(ScholarMetadata metadata) {
         // Create and return new Reference.
         Reference reference = new Reference();
         reference.setAuthors(metadata.getAuthors());

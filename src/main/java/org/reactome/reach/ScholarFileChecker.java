@@ -12,9 +12,9 @@ import java.util.Set;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 
-public class scholarFileChecker {
+public class ScholarFileChecker {
 
-    public scholarFileChecker() {
+    public ScholarFileChecker() {
     }
 
 	/**
@@ -28,10 +28,10 @@ public class scholarFileChecker {
 	 * @throws IOException
 	 * @throws CsvException
 	 */
-	private List<scholarMetadata> createPaperMetadata(Path metadataFile) throws IOException, CsvException {
+	private List<ScholarMetadata> createPaperMetadata(Path metadataFile) throws IOException, CsvException {
 	    // Get list of "noncomm_use_subset" papers from rows in the metadata file.
-        List<scholarMetadata> papers = new CsvToBeanBuilder<scholarMetadata>(new FileReader(metadataFile.toString()))
-                                             .withType(scholarMetadata.class)
+        List<ScholarMetadata> papers = new CsvToBeanBuilder<ScholarMetadata>(new FileReader(metadataFile.toString()))
+                                             .withType(ScholarMetadata.class)
                                              .withOrderedResults(false)
                                              .withVerifier(new PaperMetadataFilter())
                                              .build()
@@ -40,10 +40,10 @@ public class scholarFileChecker {
 	}
 
 
-	private List<scholarMetadata> filterPaperMetadata(List<scholarMetadata> paperMetadata, Set<String> completedIds) throws Exception {
-	    List<scholarMetadata> filteredMetadata = new ArrayList<scholarMetadata>();
+	private List<ScholarMetadata> filterPaperMetadata(List<ScholarMetadata> paperMetadata, Set<String> completedIds) throws Exception {
+	    List<ScholarMetadata> filteredMetadata = new ArrayList<ScholarMetadata>();
 
-	    for (scholarMetadata metadata : paperMetadata) {
+	    for (ScholarMetadata metadata : paperMetadata) {
 	        if (completedIds.contains(metadata.getPmcid()) ||
 	            completedIds.contains(metadata.getPmid()) ||
 	            completedIds.contains(metadata.getDoi()))
@@ -55,15 +55,15 @@ public class scholarFileChecker {
 	    return filteredMetadata;
 	}
 	
-	public List<scholarMetadata> getFilteredMetadata(Path metadataFile, Path completedFriesDir) throws IOException, Exception {
-		List<scholarMetadata> paperMetadata = createPaperMetadata(metadataFile);
+	public List<ScholarMetadata> getFilteredMetadata(Path metadataFile, Path completedFriesDir) throws IOException, Exception {
+		List<ScholarMetadata> paperMetadata = createPaperMetadata(metadataFile);
 
 		Set<String> completedIds = new HashSet<String>();
 
 		for (Path completedFries : FriesUtils.getFilesInDir(completedFriesDir))
 		    completedIds.add(FriesUtils.getIdFromPath(completedFries));
 
-		List<scholarMetadata> filteredMetadata = filterPaperMetadata(paperMetadata, completedIds);
+		List<ScholarMetadata> filteredMetadata = filterPaperMetadata(paperMetadata, completedIds);
 
 		return filteredMetadata;
 	}

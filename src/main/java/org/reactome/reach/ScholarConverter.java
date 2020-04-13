@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * Converts JSON files in Semantic Scholar data sets to a plain text format
  * digestible by REACH.
  */
-public class scholarConverter {
+public class ScholarConverter {
 	// See src/main/resources/log4j2.xml for log4j specific configuration
 	private static final Logger logger = LogManager.getLogger("mainLog");
 
@@ -55,7 +55,7 @@ public class scholarConverter {
 	    return text.toString();
 	}
 
-	private Path findFile(Path dir, scholarMetadata metadata) throws Exception {
+	private Path findFile(Path dir, ScholarMetadata metadata) throws Exception {
 	    // PMC
 	    Path path = findFile(dir, metadata.getPmcid());
 	    
@@ -70,7 +70,7 @@ public class scholarConverter {
 	    return path;
 	}
 	
-	private String createFilename(scholarMetadata metadata) {
+	private String createFilename(ScholarMetadata metadata) {
 	    String filename = new String();
 	    //PMC
 	    if (metadata.getPmcid() != null && metadata.getPmcid().length() > 0) 
@@ -96,7 +96,7 @@ public class scholarConverter {
 	    return null;
 	}
 	
-	private void createReferenceFile(Path outputFile, scholarMetadata metadata)
+	private void createReferenceFile(Path outputFile, ScholarMetadata metadata)
 	        throws JsonGenerationException, JsonMappingException, IOException {
 	    FriesReferenceAdder referenceAdder = new FriesReferenceAdder();
 	    
@@ -105,7 +105,7 @@ public class scholarConverter {
 	    FriesUtils.writeJSONFile(outputFile, reference);
 	}
 	
-	private Path convertParsedFile(Path inputDir, Path outputDir, scholarMetadata metadata) throws Exception {
+	private Path convertParsedFile(Path inputDir, Path outputDir, ScholarMetadata metadata) throws Exception {
 	    // Find the JSON file corresponding to the "paper".
 	    Path jsonFile = findFile(inputDir, metadata);
 
@@ -125,7 +125,7 @@ public class scholarConverter {
 	    return Paths.get(filename);
 	}
 	
-	private String identifyUnparsedFile(Path inputDir, Path outputDir, scholarMetadata metadata) throws Exception {
+	private String identifyUnparsedFile(Path inputDir, Path outputDir, ScholarMetadata metadata) throws Exception {
 	    // content
 	    StringBuilder contentStr = new StringBuilder();
 
@@ -154,7 +154,7 @@ public class scholarConverter {
 	    return contentStr.toString();
 	}
 	
-	private Path convertUnparsedFile(Path inputDir, Path outputDir, scholarMetadata metadata) throws Exception {
+	private Path convertUnparsedFile(Path inputDir, Path outputDir, ScholarMetadata metadata) throws Exception {
 	    String content = identifyUnparsedFile(inputDir, outputDir, metadata);
 
 	    // Output the plain text file to the output directory.
@@ -188,13 +188,13 @@ public class scholarConverter {
 		
 		// FRIES files already processed by the pipeline.
         // Used to check which files in the new dataset may be safely skipped.
-		scholarFileChecker checker = new scholarFileChecker();
-        List<scholarMetadata> paperMetadata = checker.getFilteredMetadata(metadataFile, friesCompletedDir);
+		ScholarFileChecker checker = new ScholarFileChecker();
+        List<ScholarMetadata> paperMetadata = checker.getFilteredMetadata(metadataFile, friesCompletedDir);
 
         Path outputFile = null;
         
         // For all the CSV rows in the filtered metadata.
-        for (scholarMetadata metadata : paperMetadata) {
+        for (ScholarMetadata metadata : paperMetadata) {
             
             // If the paper has already been parsed into "PMC<ID>.xml.json".
             if (metadata.getHas_pmc_xml_parse()) {

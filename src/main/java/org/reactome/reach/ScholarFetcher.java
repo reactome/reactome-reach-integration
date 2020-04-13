@@ -18,9 +18,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
-public class scholarFetcher {
+public class ScholarFetcher {
 
-    public scholarFetcher() {
+    public ScholarFetcher() {
     }
 
     private void extractFiles(Path tarGz, Path outputDir) throws IOException {
