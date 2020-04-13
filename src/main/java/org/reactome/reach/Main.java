@@ -54,7 +54,7 @@ public class Main {
 	    Main main = new Main();
 	    
 	    // Root directory.
-//	    main.makeDirectories(FriesUtils.getRootDir());
+	    main.makeDirectories(FriesUtils.getRootDir());
 
         // Try to follow some standard Maven project practice.
         // Provide application.properties.

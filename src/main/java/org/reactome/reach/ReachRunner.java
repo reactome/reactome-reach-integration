@@ -12,7 +12,7 @@ public class ReachRunner {
     }
     
     public void runReach(Path reachCodeDir) throws IOException, InterruptedException {
-        final String sbt = "/usr/local/bin/sbt";
+        final String sbt = "/usr/bin/sbt";
         final String server = "run-main org.clulab.processors.server.ProcessorServer";
         final String cli = "run-main org.clulab.reach.RunReachCLI";
 
