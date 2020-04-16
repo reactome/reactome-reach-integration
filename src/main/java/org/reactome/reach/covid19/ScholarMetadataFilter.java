@@ -1,11 +1,11 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import com.opencsv.bean.BeanVerifier;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 
-public class PaperMetadataFilter implements BeanVerifier<ScholarMetadata> {
+public class ScholarMetadataFilter implements BeanVerifier<ScholarMetadata> {
 
-    public PaperMetadataFilter() {
+    public ScholarMetadataFilter() {
     }
 
     @Override

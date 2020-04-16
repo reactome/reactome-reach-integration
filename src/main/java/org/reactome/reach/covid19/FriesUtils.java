@@ -1,8 +1,10 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -65,9 +67,9 @@ public class FriesUtils {
             writer.write(str, 0, str.length());
         }
     }
-    
+
     static void writeJSONFile(Path file, Object json) throws JsonGenerationException, JsonMappingException, IOException {
-        ObjectMapper mapper = new ObjectMapper(); 
+        ObjectMapper mapper = new ObjectMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(file.toFile(), json);
     }
 
@@ -122,12 +124,12 @@ public class FriesUtils {
             identifier = filename.replaceFirst(FriesConstants.DOI, "");
             identifier = filename.replaceAll("-", "/");
         }
-        
+
         // SHA
         else {
             identifier = filename;
         }
-            
+
         identifier = identifier.replaceAll(".fries", "");
         identifier = identifier.replaceAll(".json", "");
         identifier = identifier.replaceAll(".reference", "");
@@ -136,23 +138,10 @@ public class FriesUtils {
         return identifier;
     }
 
-
-    static void showCurentFile(Path file) {
-        String str = file.toString();
-//	    logger.info(str);
-	}
-
-	static void showSuccesfulFile(Path file, int current, int total) {
-	    String str = file.toString() + " -> OK ( " + current + " / " + total + " ) ";
-//	    logger.info(str);
-	}
-
 	static Properties getProperties() throws IOException {
 	    Properties properties = new Properties();
-	    Path propertiesFile = Paths.get(FriesConstants.PROPERTY_FILE);
-
-	    try (BufferedReader reader = Files.newBufferedReader(propertiesFile)) {
-	        properties.load(reader);
+	    try (InputStream inputStream = FriesUtils.class.getResourceAsStream(FriesConstants.PROPERTY_FILE)) {
+	        properties.load(inputStream);
         }
 
 	    return properties;
@@ -162,13 +151,23 @@ public class FriesUtils {
 	    Path testDir = Paths.get(System.getProperty("user.home"));
 	    return testDir.resolve(Paths.get("Documents/reach-to-fries-testing"));
 	}
-	
+
 	static Path getCurrentDir() throws IOException {
 	    return getRootDir().resolve("current");
 	}
 
 	static Path getRootDir() throws IOException {
-	    Path rootDir = Paths.get(System.getProperty("user.home"));
-	    return rootDir.resolve(getProperties().getProperty("rootDir"));
+	    Path rootDir = null;
+	    Properties properties = getProperties();
+
+	    boolean prependHome = Boolean.parseBoolean(properties.getProperty("prependHome"));
+	    if (prependHome) {
+	        rootDir = Paths.get(System.getProperty("user.home"));
+	        rootDir = rootDir.resolve(properties.getProperty("rootDir"));
+	    }
+	    else
+	        rootDir = Paths.get(properties.getProperty("rootDir"));
+
+	    return rootDir;
 	}
 }

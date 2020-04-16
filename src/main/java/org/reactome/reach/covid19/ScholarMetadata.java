@@ -1,4 +1,4 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class ScholarMetadata {
     @CsvBindAndSplitByName(elementType = Person.class,
                            collectionType = ArrayList.class,
                            splitOn = "; ",
-                           converter = TextToPerson.class)
+                           converter = ScholarMetadataToPerson.class)
     public List<Person> authors;
 
     @CsvBindByName

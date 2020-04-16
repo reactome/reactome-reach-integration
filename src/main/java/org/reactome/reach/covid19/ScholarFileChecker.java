@@ -1,9 +1,8 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +32,7 @@ public class ScholarFileChecker {
         List<ScholarMetadata> papers = new CsvToBeanBuilder<ScholarMetadata>(new FileReader(metadataFile.toString()))
                                              .withType(ScholarMetadata.class)
                                              .withOrderedResults(false)
-                                             .withVerifier(new PaperMetadataFilter())
+                                             .withVerifier(new ScholarMetadataFilter())
                                              .build()
                                              .parse();
 	    return papers;

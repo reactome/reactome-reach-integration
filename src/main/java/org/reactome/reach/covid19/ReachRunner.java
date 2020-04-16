@@ -1,4 +1,4 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,31 +10,14 @@ import java.util.List;
 public class ReachRunner {
     public ReachRunner() {
     }
-    
+
     public void runReach(Path reachCodeDir) throws IOException, InterruptedException {
-        final String sbt = "/usr/bin/sbt";
-        final String server = "run-main org.clulab.processors.server.ProcessorServer";
+        final String sbt = "/usr/local/bin/sbt";
         final String cli = "run-main org.clulab.reach.RunReachCLI";
 
-		// sbt 'run-main org.clulab.processors.server.ProcessorServer'
-        Process serverProcess = runCommand(reachCodeDir, sbt, server);
-
-		// sbt 'run-main org.clulab.reach.RunReachCLI' 
-        Runnable runnable = () -> {
-            try {
-                Process cliProcess = runCommand(reachCodeDir, sbt, cli);
-                logProcess(cliProcess);
-                cliProcess.destroy();
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        };
-        
-        Thread thread = new Thread(runnable);
-        thread.start();
-
-        serverProcess.waitFor();
-        serverProcess.destroy();
+        Process cliProcess = runCommand(reachCodeDir, sbt, cli);
+        logProcess(cliProcess);
+        cliProcess.destroy();
     }
 
     private Process runCommand(Path dir, String... parts) throws IOException, InterruptedException {
@@ -44,7 +27,7 @@ public class ReachRunner {
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.directory(dir.toFile());
-        Process process = processBuilder.start(); 
+        Process process = processBuilder.start();
         return process;
     }
 

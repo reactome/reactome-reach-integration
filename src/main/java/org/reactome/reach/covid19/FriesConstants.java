@@ -1,4 +1,4 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 public class FriesConstants {
     public static final String PMC = "PMC";
@@ -9,7 +9,7 @@ public class FriesConstants {
     public static final String COMPLETED = "fries-completed";
     public static final String REFERENCES = "references";
     public static final String RESTART_LOG = "restart.log";
-    public static final String PROPERTY_FILE = "converter.prop";
+    public static final String PROPERTY_FILE = "/application.properties";
     public static final String OUTPUT = "output";
     public static final String JSON_EXT = ".json";
     public static final String FRIES_EXT = ".fries";

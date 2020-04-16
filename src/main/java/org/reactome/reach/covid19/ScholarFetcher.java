@@ -1,4 +1,4 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -1,4 +1,4 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,14 +51,10 @@ public class Main {
     }
 
 	public static void main(String[] args) throws Exception {
-	    Main main = new Main();
-	    
 	    // Root directory.
+	    Main main = new Main();
 	    main.makeDirectories(FriesUtils.getRootDir());
 
-        // Try to follow some standard Maven project practice.
-        // Provide application.properties.
-	    
 	    // Semantic Scholar directories.
         Path semScholarDir = FriesUtils.getCurrentDir().resolve("semantic-scholar");
         Properties properties = FriesUtils.getProperties();

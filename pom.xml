@@ -91,7 +91,7 @@
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
@@ -111,21 +111,21 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.11.0.rc1</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.12</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/fluent-hc -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>fluent-hc</artifactId>
 			<version>4.5.12</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -138,7 +138,7 @@
 			<artifactId>reach</artifactId>
 			<version>0.1.0</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<repositories>
@@ -158,6 +158,17 @@
 	<build>
 		<!-- optional list the final name of the built artifact -->
 		<finalName>fries-converter</finalName>
+
+		<!--  resources -->
+	    <resources>
+		    <resource>
+				<directory>src/main/resources</directory>
+				<includes>
+				    <include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+
 		<pluginManagement>
 			<plugins>
 				<!-- sets the Java compiler version targeted by Maven -->

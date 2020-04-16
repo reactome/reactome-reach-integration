@@ -1,4 +1,4 @@
-package org.reactome.reach;
+package org.reactome.reach.covid19;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +9,7 @@ import com.opencsv.bean.AbstractCsvConverter;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 
-public class TextToPerson extends AbstractCsvConverter {
+public class ScholarMetadataToPerson extends AbstractCsvConverter {
 
     @Override
     public Object convertToRead(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
