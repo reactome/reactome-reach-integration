@@ -153,6 +153,10 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>internal-development</id>
+			<url>https://liambeckman.com/pkgs/mvn</url>
+		</repository>
 	</repositories>
 
 	<build>
