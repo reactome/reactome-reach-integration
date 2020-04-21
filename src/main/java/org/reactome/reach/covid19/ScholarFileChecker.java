@@ -11,7 +11,12 @@ import java.util.Set;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 public class ScholarFileChecker {
+	private static final Logger logger = LogManager.getLogger("mainLog");
 
     public ScholarFileChecker() {
     }
@@ -39,6 +44,14 @@ public class ScholarFileChecker {
 	}
 
 
+	/**
+	 * Check metadata against already processed paper ID's.
+	 *
+	 * @param paperMetadata
+	 * @param completedIds
+	 * @return List
+	 * @throws Exception
+	 */
 	private List<ScholarMetadata> filterPaperMetadata(List<ScholarMetadata> paperMetadata, Set<String> completedIds) throws Exception {
 	    List<ScholarMetadata> filteredMetadata = new ArrayList<ScholarMetadata>();
 
@@ -53,7 +66,16 @@ public class ScholarFileChecker {
 
 	    return filteredMetadata;
 	}
-	
+
+	/**
+	 * Filter out all papers (metadata rows) that have already been processed.
+	 *
+	 * @param metadataFile
+	 * @param completedFriesDir
+	 * @return List
+	 * @throws IOException
+	 * @throws Exception
+	 */
 	public List<ScholarMetadata> getFilteredMetadata(Path metadataFile, Path completedFriesDir) throws IOException, Exception {
 		List<ScholarMetadata> paperMetadata = createPaperMetadata(metadataFile);
 
@@ -62,8 +84,11 @@ public class ScholarFileChecker {
 		for (Path completedFries : FriesUtils.getFilesInDir(completedFriesDir))
 		    completedIds.add(FriesUtils.getIdFromPath(completedFries));
 
+		logger.info("Filtering metadata.");
 		List<ScholarMetadata> filteredMetadata = filterPaperMetadata(paperMetadata, completedIds);
 
+		logger.info("Number of papers already processed: " + filteredMetadata.size());
+		logger.info("Number of new papers: " + filteredMetadata.size());
 		return filteredMetadata;
 	}
 

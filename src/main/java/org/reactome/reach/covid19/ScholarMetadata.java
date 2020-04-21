@@ -13,7 +13,7 @@ public class ScholarMetadata {
     public ScholarMetadata() {
     }
 
-    @CsvBindAndSplitByName(column = "sha", 
+    @CsvBindAndSplitByName(column = "sha",
                            elementType = String.class,
                            collectionType = ArrayList.class,
                            splitOn = "; ")
@@ -54,7 +54,7 @@ public class ScholarMetadata {
 
     @CsvBindByName
     public String url;
-    
+
     @CsvBindByName
     public String publish_time;
 
@@ -85,7 +85,7 @@ public class ScholarMetadata {
     public boolean getHas_pdf_parse() {
         return has_pdf_parse;
     }
-    
+
     public List<Person> getAuthors() {
         return authors;
     }
@@ -93,15 +93,15 @@ public class ScholarMetadata {
     public String getTitle() {
         return title;
     }
-    
+
     public String getJournal() {
         return journal;
     }
-    
+
     public String getPublish_time() {
         return publish_time;
     }
-    
+
     public int getYear() {
         String year = publish_time;
 
@@ -111,5 +111,5 @@ public class ScholarMetadata {
 
         return Integer.parseInt(year);
     }
-    
+
 }

@@ -1,35 +1,34 @@
 package org.reactome.reach.covid19;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FriesUtils {
-//	private static final Logger logger = LogManager.getLogger("mainLog");
 
     public FriesUtils() {
     }
 
+    /**
+     * Read the contents of a file into a String.
+     *
+     * @param file
+     * @return String
+     * @throws IOException
+     */
     static String readFile(Path file) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -42,41 +41,39 @@ public class FriesUtils {
         return stringBuilder.toString();
     }
 
-    static List<String> readFileToList(Path file) throws IOException {
-        List<String> list = new ArrayList<String>();
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                list.add(line);
-            }
-        }
-
-        return list;
-    }
-
-	static void writeFile(Path file, String contents) throws IOException {
-	    try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-	        writer.write(contents.toString(), 0, contents.length());
-	    }
-	}
-
-    static void appendFile(Path file, String str) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(file,
-                                                             StandardCharsets.UTF_8,
-                                                             StandardOpenOption.APPEND)) {
-            writer.write(str, 0, str.length());
-        }
-    }
-
+    /**
+     * Write a JSON object to a given file.
+     *
+     * @param file
+     * @param json
+     * @throws JsonGenerationException
+     * @throws JsonMappingException
+     * @throws IOException
+     */
     static void writeJSONFile(Path file, Object json) throws JsonGenerationException, JsonMappingException, IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writerWithDefaultPrettyPrinter().writeValue(file.toFile(), json);
     }
 
+    /**
+     * Return all files in a given directory.
+     *
+     * @param dir
+     * @return List
+     * @throws IOException
+     */
 	static List<Path> getFilesInDir(Path dir) throws IOException {
 	    return getFilesInDir(dir, null);
 	}
 
+	/**
+	 * Return all files that have a given extension in a directory.
+	 *
+	 * @param dir
+	 * @param filter
+	 * @return List
+	 * @throws IOException
+	 */
 	static List<Path> getFilesInDir(Path dir, String filter) throws IOException {
 	    List<Path> files = new ArrayList<Path>();
 	    try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
@@ -107,6 +104,14 @@ public class FriesUtils {
         return paperId;
     }
 
+    /**
+     * Extract the PMC/PMID/DOI identifier from a given paper as represented by its Path.
+     *
+     * e.g. 'DOI10.1136-bmj.m606.events.json' -> 'DOI10.1136-bmj.m606'
+     *
+     * @param file
+     * @return String
+     */
     static String getIdFromPath(Path file) {
         String identifier = null;
         String filename = file.getFileName().toString();
@@ -130,14 +135,26 @@ public class FriesUtils {
             identifier = filename;
         }
 
-        identifier = identifier.replaceAll(".fries", "");
-        identifier = identifier.replaceAll(".json", "");
-        identifier = identifier.replaceAll(".reference", "");
-        identifier = identifier.replaceAll(".xml", "");
+        List<String> removeStrings = Arrays.asList(".fries",
+                                                   ".json",
+                                                   ".reference",
+                                                   ".xml",
+                                                   ".events",
+                                                   ".entities",
+                                                   ".sentences",
+                                                   ".uaz");
+        for (String remove : removeStrings)
+            identifier = identifier.replaceAll(remove, "");
 
         return identifier;
     }
 
+    /**
+     * Return application's properties.
+     *
+     * @return Properties
+     * @throws IOException
+     */
 	static Properties getProperties() throws IOException {
 	    Properties properties = new Properties();
 	    try (InputStream inputStream = FriesUtils.class.getResourceAsStream(FriesConstants.PROPERTY_FILE)) {
@@ -147,15 +164,12 @@ public class FriesUtils {
 	    return properties;
 	}
 
-	static Path getTestDir() throws IOException {
-	    Path testDir = Paths.get(System.getProperty("user.home"));
-	    return testDir.resolve(Paths.get("Documents/reach-to-fries-testing"));
-	}
-
-	static Path getCurrentDir() throws IOException {
-	    return getRootDir().resolve("current");
-	}
-
+	/**
+	 * Return the root directory that all pipelines and completed files reside.
+	 *
+	 * @return Path
+	 * @throws IOException
+	 */
 	static Path getRootDir() throws IOException {
 	    Path rootDir = null;
 	    Properties properties = getProperties();
@@ -170,4 +184,5 @@ public class FriesUtils {
 
 	    return rootDir;
 	}
+
 }

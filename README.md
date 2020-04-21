@@ -1,15 +1,15 @@
-# Class Overview 
- 
+# Class Overview
+
     The following directories will be created and populated with the
     described output --
 
       Step   Class/Operation            Path                Description
       ------ -------------------------- ------------------- ---------------------------------------------------------------
       1      SemanticScholarConverter   semantic-scholar/   Dataset of JSON files and metadata file from Semantic Scholar
-                                                            
+
       2      REACH                      reach/papers        NXML, CSV/TSV, or plain text input for REACH.
       3                                 reach/output        FRIES output (events, entities, sentences triplet).
-                                                            
+
       4      FriesMerger                fries/merged        Triplet files merged into one FRIES file.
       5      FriesFilter                fries/filtered      FRIES files with at least one such event.
       6      FriesReference             fries/references    Fries Files with \"Reference\" field appended.

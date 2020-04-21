@@ -10,35 +10,22 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FriesMerger {
+	private static final Logger logger = LogManager.getLogger("mainLog");
 
     public FriesMerger() {
     }
 
-    private String getIdentifier(Path path) throws IOException {
-        String identifier = null;
-
-        // Get the identifier (PMC, PMID, DOI).
-        String pathStr = path.getFileName().toString();
-        if (pathStr.startsWith(FriesConstants.PMC) || pathStr.startsWith(FriesConstants.PMID)) {
-            // PMC3908835.events.json -> PMC3908835
-            identifier = pathStr.split("\\.")[0];
-        }
-        else if (pathStr.startsWith(FriesConstants.DOI)) {
-            // DOI10.1136-bmj.m606.events.json -> DOI10.1136-bmj.m606.
-            List<String> list = Arrays.asList(pathStr.split("\\."));
-
-            // Remove "events" and "json".
-            list = list.subList(0, list.size() - 2);
-            identifier = String.join(".", list);
-        }
-        else
-            throw new IOException();
-        
-        return identifier;
-    }
-    
+    /**
+     * Return a list of Identifiers mapped to the respective Event, Entity, and Sentence triplet.
+     *
+     * @param inputDir
+     * @return
+     * @throws IOException
+     */
     private Map<String, List<Path>> getTripletMap(Path inputDir) throws IOException {
         String identifier = null;
 
@@ -46,11 +33,11 @@ public class FriesMerger {
         Map<String, List<Path>> fileMap = new HashMap<String, List<Path>>();
 
         // For all JSON files in the directory.
-        for (Path path : FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON_EXT)) {
-            if (!path.toString().endsWith(FriesConstants.JSON_EXT))
+        for (Path path : FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON)) {
+            if (!path.toString().endsWith(FriesConstants.JSON))
                 continue;
 
-            identifier = getIdentifier(path);
+            identifier = FriesUtils.getIdFromPath(path);
 
             // Add the identifier and path to file map.
             if (fileMap.containsKey(identifier))
@@ -61,10 +48,18 @@ public class FriesMerger {
                 fileMap.put(identifier, triplet);
             }
         }
-        
+
         return fileMap;
     }
 
+    /**
+     * Merge an Event, Entity, and Sentence triplet into one file.
+     *
+     * @param identifier
+     * @param files
+     * @return
+     * @throws IOException
+     */
     private Object mergeJson(String identifier, List<Path> files) throws IOException {
         Path eventFile = null;
         Path entityFile = null;
@@ -81,7 +76,7 @@ public class FriesMerger {
             else if (filename.contains(FriesConstants.SENTENCES))
                 sentenceFile = file;
         }
-        
+
         if (eventFile == null || entityFile == null || sentenceFile == null)
             throw new IOException();
 
@@ -95,10 +90,17 @@ public class FriesMerger {
         return mapper.readValue(contents.toString(), Object.class);
     }
 
+    /**
+     * Merge each Event, Entity, and Sentence triplet returned by REACH into single files.
+     *
+     * @param inputDir
+     * @param outputDir
+     * @throws IOException
+     */
     public void merge(Path inputDir, Path outputDir) throws IOException {
         // Identifiers mapped to file triplet).
         Map<String, List<Path>> fileMap = getTripletMap(inputDir);
-        
+
         Path path = null;
         String filename = null;
 		Object json = null;
@@ -106,9 +108,12 @@ public class FriesMerger {
 		for (Map.Entry<String, List<Path>> map : fileMap.entrySet()) {
 		    json = mergeJson(map.getKey(), map.getValue());
 		    // Write the file to the output directory.
-		    filename = map.getKey().concat(FriesConstants.FRIES_EXT).concat(FriesConstants.JSON_EXT);
+		    filename = map.getKey().concat(FriesConstants.FRIES).concat(FriesConstants.JSON);
 		    path = Paths.get(outputDir.toString(), filename);
 		    FriesUtils.writeJSONFile(path, json);
 		}
+
+        int numMerged = inputDir.toFile().list().length;
+		logger.info("Merged " + numMerged + "files.");
     }
 }

@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.client.fluent.Request;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.Person;
 import org.gk.model.Reference;
 import org.gk.reach.ReachUtils;
@@ -19,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Create and append Reference data to FRIES files.
  */
 public class FriesReferenceAdder {
+	private static final Logger logger = LogManager.getLogger("mainLog");
+
     public FriesReferenceAdder() {
     }
 
@@ -48,8 +53,8 @@ public class FriesReferenceAdder {
         stringBuilder.append(FriesConstants.RETMODE);
         stringBuilder.append(FriesConstants.TOOL_EMAIL);
 
-        HttpCaller httpCaller = new HttpCaller();
-        String metadata = httpCaller.callHttpGet(URI.create(stringBuilder.toString())).asString();
+        URI url = URI.create(stringBuilder.toString());
+        String metadata = Request.Get(url).execute().returnContent().asString();
 
         NcbiMetadata paperMetadataObj = ReachUtils.readJsonText(metadata, NcbiMetadata.class);
         // Generic Key, Value map from JSON returned by API.
@@ -63,6 +68,7 @@ public class FriesReferenceAdder {
      * @param paperData
      * @return Reference
      */
+    @SuppressWarnings("unchecked")
     private Reference createReference(Map<String, Object> paperData) {
         // authors
         List<Map<String, String>> authorMaps = (List<Map<String, String>>) paperData.get("authors");
@@ -182,7 +188,7 @@ public class FriesReferenceAdder {
 	    ObjectMapper mapper = new ObjectMapper();
 
 	    // Get total number of files to display progress.
-        List<Path> friesFiles = FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON_EXT);
+        List<Path> friesFiles = FriesUtils.getFilesInDir(inputDir, FriesConstants.JSON);
 
         // For all JSON files in the directory.
         for (Path file : friesFiles) {
@@ -201,5 +207,8 @@ public class FriesReferenceAdder {
             json = mapper.readValue(contents, Object.class);
             FriesUtils.writeJSONFile(outputDir.resolve(file.getFileName()), json);
         }
+
+        int referenceNum = outputDir.toFile().list().length;
+        logger.info("Added " + referenceNum + " reference(s).");
 	}
 }
