@@ -26,6 +26,7 @@
 		</Root>
 		<Logger name="mainLog" level="debug" additivity="false">
 			<AppenderRef ref="mainLogFile"/>
+			<AppenderRef ref="Console" level="debug"/>
 		</Logger>
 		<!-- Add more loggers here (linking a logger name to an appender) -->
 	</Loggers>

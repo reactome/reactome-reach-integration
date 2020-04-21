@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ScholarFetcher {
-	private static final Logger logger = LogManager.getLogger("mainLog");
+	private final Logger logger = Main.getLogger();
 
     public ScholarFetcher() {
     }

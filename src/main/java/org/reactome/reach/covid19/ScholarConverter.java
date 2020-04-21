@@ -23,8 +23,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * digestible by REACH.
  */
 public class ScholarConverter {
-    private static final Logger logger = LogManager.getLogger("mainLog");
-
+	private final Logger logger = Main.getLogger();
 
 	/**
 	 * Return the abstract and body text from a given paper.

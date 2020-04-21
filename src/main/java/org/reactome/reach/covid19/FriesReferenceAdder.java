@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Create and append Reference data to FRIES files.
  */
 public class FriesReferenceAdder {
-	private static final Logger logger = LogManager.getLogger("mainLog");
+	private final Logger logger = Main.getLogger();
 
     public FriesReferenceAdder() {
     }

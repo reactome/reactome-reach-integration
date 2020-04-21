@@ -14,7 +14,14 @@ import org.apache.logging.log4j.Logger;
 
 public class Main {
 	// See src/main/resources/log4j2.xml for log4j specific configuration.
-	private static final Logger logger = LogManager.getLogger("mainLog");
+	private final static Logger logger = LogManager.getLogger("mainLog");
+
+	public Main() {
+	}
+
+	public static Logger getLogger() {
+	    return logger;
+	}
 
     private void makeDirectories(Path path) throws IOException {
         // Pipelines directory.
@@ -63,6 +70,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 	    // Root directory.
 	    Main main = new Main();
+
 	    main.makeDirectories(FriesUtils.getRootDir());
 	    Path currentDir = FriesUtils.getRootDir().resolve("current");
 
@@ -96,7 +104,7 @@ public class Main {
 		converter.convert(semScholarDir, reachPapersDir, friesCompletedDir);
 
 		// reach/papers -> reach/output
-		logger.info("Runing REACH on text files.");
+		logger.info("Running REACH on text files.");
 		ReachRunner runner = new ReachRunner();
 		runner.runReach(reachCodeDir);
 
